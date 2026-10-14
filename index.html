@@ -1,1 +1,815 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOREDOM LAB 2.0</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #190b35, #512080, #241044);
+  color: white;
+  padding: 18px;
+}
+
+header {
+  text-align: center;
+  padding: 20px 5px;
+}
+
+header h1 {
+  font-size: 36px;
+  color: #ffd6ff;
+  margin-bottom: 8px;
+}
+
+header p { color: #eee0ff; }
+
+section, .game {
+  background: #321852;
+  border: 1px solid #794ca2;
+  border-radius: 16px;
+  padding: 18px;
+  margin: 18px auto;
+  max-width: 850px;
+}
+
+h2 { color: #f4b8ff; }
+
+input, select {
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  margin: 5px;
+  max-width: 100%;
+}
+
+button {
+  background: #e2b5ff;
+  color: #241044;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 14px;
+  margin: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover { background: white; }
+
+.game {
+  background: #402061;
+}
+
+.result {
+  color: #ffe58a;
+  font-weight: bold;
+  min-height: 24px;
+}
+
+#leaderboard {
+  line-height: 1.9;
+}
+
+.small {
+  font-size: 13px;
+  color: #e6d5f7;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #e6d5f7;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎮 BOREDOM LAB 2.0 🎮</h1>
+  <p>The ultimate family game zone!</p>
+  <p>Play, laugh and collect points together 🏆</p>
+</header>
+
+<section>
+  <h2>👨‍👩‍👧‍👦 Add Players</h2>
+  <input id="playerName" placeholder="Enter player name">
+  <button onclick="addPlayer()">Add Player</button>
+  <p id="playerList">No players yet!</p>
+  <hr>
+  <h3>🎯 Current Turn: <span id="currentPlayer">Add a player!</span></h3>
+  <button onclick="nextPlayer()">Next Player ➡️</button>
+</section>
+
+<section>
+  <h2>🏆 Family Leaderboard</h2>
+  <div id="leaderboard">Add players to begin!</div>
+  <button onclick="resetScores()">Reset All Scores</button>
+  <p class="small">Scores reset when the page is refreshed.</p>
+</section>
+
+<!-- GAME 1 -->
+<div class="game">
+  <h2>🎯 1. Guess the Number</h2>
+  <p>Guess a number from 1 to 20!</p>
+  <input id="guessInput" type="number" min="1" max="20">
+  <button onclick="guessNumber()">Guess!</button>
+  <button onclick="newNumber()">New Number</button>
+  <p id="guessResult" class="result"></p>
+</div>
+
+<!-- GAME 2 -->
+<div class="game">
+  <h2>✊ 2. Rock Paper Scissors</h2>
+  <p>Choose your move!</p>
+  <button onclick="playRPS('Rock')">✊ Rock</button>
+  <button onclick="playRPS('Paper')">✋ Paper</button>
+  <button onclick="playRPS('Scissors')">✌️ Scissors</button>
+  <p id="rpsResult" class="result"></p>
+</div>
+
+<!-- GAME 3 -->
+<div class="game">
+  <h2>⚡ 3. Reaction Challenge</h2>
+  <p>Click the button as quickly as you can after it turns green!</p>
+  <button id="reactionButton" onclick="reactionClick()">Start Challenge</button>
+  <p id="reactionResult" class="result"></p>
+</div>
+
+<!-- GAME 4 -->
+<div class="game">
+  <h2>🧩 4. Riddle Time</h2>
+  <p id="riddleQuestion"></p>
+  <div id="riddleButtons"></div>
+  <p id="riddleResult" class="result"></p>
+  <button onclick="nextRiddle()">Next Riddle</button>
+</div>
+
+<!-- GAME 5 -->
+<div class="game">
+  <h2>🎲 5. Lucky Dice</h2>
+  <p>Roll a six-sided dice. Roll a 6 to win!</p>
+  <button onclick="rollDice()">Roll Dice 🎲</button>
+  <p id="diceResult" class="result"></p>
+</div>
+
+<!-- GAME 6 -->
+<div class="game">
+  <h2>🌍 6. Trivia Battle</h2>
+  <p id="triviaQuestion"></p>
+  <div id="triviaButtons"></div>
+  <p id="triviaResult" class="result"></p>
+  <button onclick="nextTrivia()">Next Question</button>
+</div>
+
+<!-- GAME 7 -->
+<div class="game">
+  <h2>😂 7. Guess the Emoji</h2>
+  <p id="emojiQuestion"></p>
+  <div id="emojiButtons"></div>
+  <p id="emojiResult" class="result"></p>
+  <button onclick="nextEmoji()">Next Emoji</button>
+</div>
+
+<!-- GAME 8 -->
+<div class="game">
+  <h2>🤔 8. Would You Rather?</h2>
+  <p id="ratherQuestion"></p>
+  <button onclick="ratherAnswer('A')">Option A</button>
+  <button onclick="ratherAnswer('B')">Option B</button>
+  <p id="ratherResult" class="result"></p>
+  <button onclick="nextRather()">Next Choice</button>
+</div>
+
+<!-- GAME 9 -->
+<div class="game">
+  <h2>🔤 9. Word Scramble</h2>
+  <p>Unscramble the letters!</p>
+  <h2 id="scrambleWord"></h2>
+  <input id="scrambleInput" placeholder="Your answer">
+  <button onclick="checkScramble()">Check</button>
+  <button onclick="newScramble()">New Word</button>
+  <p id="scrambleResult" class="result"></p>
+</div>
+
+<!-- GAME 10 -->
+<div class="game">
+  <h2>🔢 10. Number Challenge</h2>
+  <p id="numberQuestion"></p>
+  <input id="numberInput" type="number" placeholder="Answer">
+  <button onclick="checkNumberChallenge()">Submit</button>
+  <button onclick="newNumberChallenge()">New Question</button>
+  <p id="numberResult" class="result"></p>
+</div>
+
+<!-- GAME 11 -->
+<div class="game">
+  <h2>🕵️ 11. Who Am I?</h2>
+  <p id="whoQuestion"></p>
+  <div id="whoButtons"></div>
+  <p id="whoResult" class="result"></p>
+  <button onclick="nextWho()">Next Mystery</button>
+</div>
+
+<!-- GAME 12 -->
+<div class="game">
+  <h2>🎭 12. Act It Out</h2>
+  <p id="actWord">Press the button to get a challenge!</p>
+  <button onclick="newAct()">Get Challenge</button>
+  <p class="small">Act it out while everyone else guesses!</p>
+</div>
+
+<!-- GAME 13 -->
+<div class="game">
+  <h2>🧠 13. Memory Test</h2>
+  <p>Memorise the number before it disappears!</p>
+  <h2 id="memoryDisplay">Press Start!</h2>
+  <button onclick="startMemory()">Start Memory Test</button>
+  <input id="memoryInput" placeholder="Remembered number">
+  <button onclick="checkMemory()">Check</button>
+  <p id="memoryResult" class="result"></p>
+</div>
+
+<!-- GAME 14 -->
+<div class="game">
+  <h2>🍕 14. Food Quiz</h2>
+  <p id="foodQuestion"></p>
+  <div id="foodButtons"></div>
+  <p id="foodResult" class="result"></p>
+  <button onclick="nextFood()">Next Food Question</button>
+</div>
+
+<!-- GAME 15 -->
+<div class="game">
+  <h2>🍀 15. Lucky Number</h2>
+  <p>Pick a number from 1 to 10. Can you find the lucky one?</p>
+  <input id="luckyInput" type="number" min="1" max="10">
+  <button onclick="checkLucky()">Try Your Luck</button>
+  <p id="luckyResult" class="result"></p>
+</div>
+
+<!-- GAME 16 -->
+<div class="game">
+  <h2>✅ 16. True or False</h2>
+  <p id="factQuestion"></p>
+  <button onclick="answerFact(true)">True</button>
+  <button onclick="answerFact(false)">False</button>
+  <p id="factResult" class="result"></p>
+  <button onclick="nextFact()">Next Fact</button>
+</div>
+
+<!-- GAME 17 -->
+<div class="game">
+  <h2>🔊 17. Guess the Sound</h2>
+  <p id="soundQuestion"></p>
+  <div id="soundButtons"></div>
+  <p id="soundResult" class="result"></p>
+  <button onclick="nextSound()">Next Sound Clue</button>
+  <p class="small">These are written clues about familiar sounds.</p>
+</div>
+
+<!-- HARD GAME 18 -->
+<div class="game">
+  <h2>🔥 18. Brain Buster</h2>
+  <p id="brainQuestion"></p>
+  <div id="brainButtons"></div>
+  <p id="brainResult" class="result"></p>
+  <button onclick="nextBrain()">Next Riddle</button>
+</div>
+
+<!-- HARD GAME 19 -->
+<div class="game">
+  <h2>✖️ 19. Math Master</h2>
+  <p id="mathQuestion"></p>
+  <input id="mathInput" type="number" placeholder="Your answer">
+  <button onclick="checkMath()">Submit</button>
+  <button onclick="newMath()">New Question</button>
+  <p id="mathResult" class="result"></p>
+</div>
+
+<!-- HARD GAME 20 -->
+<div class="game">
+  <h2>🔎 20. Mystery Detective</h2>
+  <p id="mysteryQuestion"></p>
+  <div id="mysteryButtons"></div>
+  <p id="mysteryResult" class="result"></p>
+  <button onclick="nextMystery()">Next Mystery</button>
+</div>
+
+<footer>💜 BOREDOM LAB 2.0 — Family Fun Starts Here! 💜</footer>
+
+<script>
+let players = [];
+let current = 0;
+
+function addPlayer() {
+  const input = document.getElementById("playerName");
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Please enter a name!");
+    return;
+  }
+
+  if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    alert("That player has already been added!");
+    return;
+  }
+
+  players.push({name: name, points: 0});
+  input.value = "";
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("playerList").textContent =
+    players.length ? players.map(p => p.name).join(", ") : "No players yet!";
+
+  document.getElementById("currentPlayer").textContent =
+    players.length ? players[current].name : "Add a player!";
+
+  const sorted = [...players].sort((a,b) => b.points - a.points);
+
+  document.getElementById("leaderboard").innerHTML =
+    sorted.length
+    ? sorted.map((p,i) =>
+        (i+1) + ". " + escapeText(p.name) + " — " + p.points + " points"
+      ).join("<br>")
+    : "Add players to begin!";
+}
+
+function escapeText(text) {
+  return text.replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+
+function award(points) {
+  if (!players.length) {
+    alert("Add players first so someone can earn points!");
+    return false;
+  }
+  players[current].points += points;
+  updateDisplay();
+  return true;
+}
+
+function nextPlayer() {
+  if (!players.length) {
+    alert("Add players first!");
+    return;
+  }
+  current = (current + 1) % players.length;
+  updateDisplay();
+}
+
+function resetScores() {
+  players.forEach(p => p.points = 0);
+  updateDisplay();
+}
+
+function rand(min,max) {
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function makeButtons(id, options, callback) {
+  document.getElementById(id).innerHTML = options.map((x,i) =>
+    '<button onclick="' + callback + '(' + i + ')">' + x + '</button>'
+  ).join("");
+}
+
+function setupQuiz(data, state, qId, buttonsId, resultId, nextFn, answerFn) {
+  const item = data[state.index];
+  document.getElementById(qId).textContent = item.q;
+  document.getElementById(resultId).textContent = "";
+  state.done = false;
+  makeButtons(buttonsId, item.a, answerFn);
+}
+
+function answerQuiz(data, state, resultId, n) {
+  if (state.done) return;
+  state.done = true;
+  const item = data[state.index];
+
+  if (n === item.c) {
+    document.getElementById(resultId).textContent = "Correct! +10 points 🎉";
+    award(10);
+  } else {
+    document.getElementById(resultId).textContent =
+      "Not quite! The answer is " + item.a[item.c] + ".";
+  }
+}
+
+// 1. Guess the Number
+let secretNumber = rand(1,20);
+function newNumber() {
+  secretNumber = rand(1,20);
+  document.getElementById("guessResult").textContent = "New number ready!";
+  document.getElementById("guessInput").value = "";
+}
+function guessNumber() {
+  const value = Number(document.getElementById("guessInput").value);
+  if (!value || value < 1 || value > 20) {
+    document.getElementById("guessResult").textContent = "Enter a number from 1 to 20!";
+  } else if (value === secretNumber) {
+    document.getElementById("guessResult").textContent = "Correct! +10 points!";
+    award(10);
+    newNumber();
+  } else {
+    document.getElementById("guessResult").textContent =
+      value < secretNumber ? "Too low! Try again." : "Too high! Try again.";
+  }
+}
+
+// 2. Rock Paper Scissors
+function playRPS(choice) {
+  const options = ["Rock","Paper","Scissors"];
+  const computer = options[rand(0,2)];
+  let result = "You chose " + choice + ". Computer chose " + computer + ". ";
+
+  if (choice === computer) {
+    result += "It's a draw!";
+  } else if (
+    (choice === "Rock" && computer === "Scissors") ||
+    (choice === "Paper" && computer === "Rock") ||
+    (choice === "Scissors" && computer === "Paper")
+  ) {
+    result += "You win! +10 points!";
+    award(10);
+  } else {
+    result += "Computer wins!";
+  }
+
+  document.getElementById("rpsResult").textContent = result;
+}
+
+// 3. Reaction Challenge
+let reactionReady = false;
+let reactionStart = 0;
+let reactionTimer;
+function reactionClick() {
+  const btn = document.getElementById("reactionButton");
+
+  if (reactionReady) {
+    const time = Date.now() - reactionStart;
+    reactionReady = false;
+    clearTimeout(reactionTimer);
+    btn.style.background = "#e2b5ff";
+    btn.textContent = "Start Challenge";
+    document.getElementById("reactionResult").textContent =
+      "Your time: " + time + " ms!";
+    if (time < 350) {
+      document.getElementById("reactionResult").textContent += " Amazing! +10 points!";
+      award(10);
+    }
+  } else {
+    btn.textContent = "Wait for GREEN...";
+    btn.style.background = "#e2b5ff";
+    document.getElementById("reactionResult").textContent = "Wait...";
+    reactionTimer = setTimeout(() => {
+      reactionReady = true;
+      reactionStart = Date.now();
+      btn.textContent = "CLICK NOW!";
+      btn.style.background = "#36d77a";
+    }, rand(1500,4000));
+  }
+}
+
+// 4. Riddle Time
+const riddles = [
+ {q:"What has hands but cannot clap?",a:["A clock","A monkey","A robot"],c:0},
+ {q:"What gets wetter the more it dries?",a:["A towel","A cloud","A sponge"],c:0},
+ {q:"What has a neck but no head?",a:["A bottle","A snake","A shirt"],c:0},
+ {q:"What has many teeth but cannot bite?",a:["A comb","A tiger","A zipper"],c:0}
+];
+let riddleState = {index:0,done:false};
+function nextRiddle() {
+  riddleState.index = (riddleState.index+1)%riddles.length;
+  setupQuiz(riddles,riddleState,"riddleQuestion","riddleButtons","riddleResult","nextRiddle","answerRiddle");
+}
+function answerRiddle(n) {
+  answerQuiz(riddles,riddleState,"riddleResult",n);
+}
+
+// 5. Lucky Dice
+function rollDice() {
+  const n = rand(1,6);
+  document.getElementById("diceResult").textContent = "You rolled a " + n + "!";
+  if (n === 6) {
+    document.getElementById("diceResult").textContent += " Lucky! +10 points!";
+    award(10);
+  }
+}
+
+// 6. Trivia Battle
+const trivia = [
+ {q:"Which planet is known as the Red Planet?",a:["Mars","Venus","Jupiter"],c:0},
+ {q:"How many sides does a hexagon have?",a:["Five","Six","Eight"],c:1},
+ {q:"What is the largest ocean on Earth?",a:["Atlantic","Indian","Pacific"],c:2},
+ {q:"How many minutes are in two hours?",a:["100","120","140"],c:1},
+ {q:"Which animal is the tallest?",a:["Giraffe","Elephant","Camel"],c:0}
+];
+let triviaState = {index:0,done:false};
+function nextTrivia() {
+  triviaState.index=(triviaState.index+1)%trivia.length;
+  setupQuiz(trivia,triviaState,"triviaQuestion","triviaButtons","triviaResult","nextTrivia","answerTrivia");
+}
+function answerTrivia(n) { answerQuiz(trivia,triviaState,"triviaResult",n); }
+
+// 7. Guess the Emoji
+const emojis = [
+ {q:"🍕🍕🍕",a:["Pizza party","Birthday cake","Sandwich"],c:0},
+ {q:"🌧️☂️",a:["Sunny day","Rainy day","Snow day"],c:1},
+ {q:"🐝🍯",a:["Bee and honey","Bear and fish","Bird and nest"],c:0},
+ {q:"🌙⭐😴",a:["Breakfast","Bedtime","School time"],c:1}
+];
+let emojiState = {index:0,done:false};
+function nextEmoji() {
+  emojiState.index=(emojiState.index+1)%emojis.length;
+  setupQuiz(emojis,emojiState,"emojiQuestion","emojiButtons","emojiResult","nextEmoji","answerEmoji");
+}
+function answerEmoji(n) { answerQuiz(emojis,emojiState,"emojiResult",n); }
+
+// 8. Would You Rather
+const rather = [
+ {q:"Would you rather fly or become invisible?",a:"Fly","b":"Become invisible"},
+ {q:"Would you rather have a pet dragon or a pet dinosaur?",a:"Pet dragon","b":"Pet dinosaur"},
+ {q:"Would you rather eat only pizza for a day or only ice cream?",a:"Pizza","b":"Ice cream"},
+ {q:"Would you rather visit space or explore the deep ocean?",a:"Visit space","b":"Explore the ocean"}
+];
+let ratherIndex=0;
+function showRather() {
+  document.getElementById("ratherQuestion").textContent = rather[ratherIndex].q;
+  document.querySelectorAll(".game button").forEach(()=>{});
+  const buttons = document.querySelectorAll(".game")[7].querySelectorAll("button");
+  buttons[0].textContent = "A: " + rather[ratherIndex].a;
+  buttons[1].textContent = "B: " + rather[ratherIndex].b;
+  document.getElementById("ratherResult").textContent = "";
+}
+function ratherAnswer(choice) {
+  document.getElementById("ratherResult").textContent =
+    "Choice " + choice + "! There are no wrong answers 😂";
+}
+function nextRather() {
+  ratherIndex=(ratherIndex+1)%rather.length;
+  showRather();
+}
+
+// 9. Word Scramble
+const words=["PLANET","PUZZLE","BANANA","FAMILY","GUITAR","ROCKET"];
+let scrambleAnswer="";
+function newScramble() {
+  scrambleAnswer=words[rand(0,words.length-1)];
+  let mixed=scrambleAnswer;
+  while(mixed===scrambleAnswer && scrambleAnswer.length>1) {
+    mixed=scrambleAnswer.split("").sort(()=>Math.random()-0.5).join("");
+  }
+  document.getElementById("scrambleWord").textContent=mixed;
+  document.getElementById("scrambleInput").value="";
+  document.getElementById("scrambleResult").textContent="";
+}
+function checkScramble() {
+  if(document.getElementById("scrambleInput").value.trim().toUpperCase()===scrambleAnswer) {
+    document.getElementById("scrambleResult").textContent="Correct! +10 points!";
+    award(10);
+    newScramble();
+  } else {
+    document.getElementById("scrambleResult").textContent="Try again!";
+  }
+}
+
+// 10. Number Challenge
+let numberAnswer=0;
+function newNumberChallenge() {
+  const a=rand(10,50), b=rand(2,9);
+  numberAnswer=a+b;
+  document.getElementById("numberQuestion").textContent="What is "+a+" + "+b+"?";
+  document.getElementById("numberInput").value="";
+  document.getElementById("numberResult").textContent="";
+}
+function checkNumberChallenge() {
+  if(Number(document.getElementById("numberInput").value)===numberAnswer) {
+    document.getElementById("numberResult").textContent="Correct! +10 points!";
+    award(10);
+  } else {
+    document.getElementById("numberResult").textContent="Not quite. Try again!";
+  }
+}
+
+// 11. Who Am I?
+const whoData=[
+ {q:"I have stripes and look like a horse. Who am I?",a:["Zebra","Tiger","Donkey"],c:0},
+ {q:"I am the largest land animal. Who am I?",a:["Rhino","Elephant","Hippo"],c:1},
+ {q:"I can change colour and catch insects with a long tongue. Who am I?",a:["Chameleon","Frog","Lizard"],c:0}
+];
+let whoState={index:0,done:false};
+function nextWho() {
+  whoState.index=(whoState.index+1)%whoData.length;
+  setupQuiz(whoData,whoState,"whoQuestion","whoButtons","whoResult","nextWho","answerWho");
+}
+function answerWho(n) { answerQuiz(whoData,whoState,"whoResult",n); }
+
+// 12. Act It Out
+const actions=["Pretend to be a robot","Act like a chicken","Pretend you are swimming","Act like a sleepy cat","Pretend to win a race","Act like a dinosaur"];
+function newAct() {
+  document.getElementById("actWord").textContent=actions[rand(0,actions.length-1)];
+}
+
+// 13. Memory Test
+let memorySequence="";
+let memoryReady=false;
+function startMemory() {
+  memorySequence="";
+  for(let i=0;i<5;i++) memorySequence+=rand(0,9);
+  memoryReady=true;
+  document.getElementById("memoryDisplay").textContent=memorySequence;
+  document.getElementById("memoryInput").value="";
+  document.getElementById("memoryResult").textContent="Memorise quickly!";
+  setTimeout(()=>{
+    document.getElementById("memoryDisplay").textContent="❓ ❓ ❓ ❓ ❓";
+  },2500);
+}
+function checkMemory() {
+  if(!memoryReady) return;
+  if(document.getElementById("memoryInput").value===memorySequence) {
+    document.getElementById("memoryResult").textContent="Amazing memory! +10 points!";
+    award(10);
+  } else {
+    document.getElementById("memoryResult").textContent="Not quite! The number was "+memorySequence;
+  }
+  memoryReady=false;
+}
+
+// 14. Food Quiz
+const foods=[
+ {q:"What is the main ingredient in hummus?",a:["Chickpeas","Rice","Potatoes"],c:0},
+ {q:"Which fruit is famous for having seeds on its outside?",a:["Strawberry","Apple","Orange"],c:0},
+ {q:"Which country is famous for sushi?",a:["Japan","Brazil","Egypt"],c:0},
+ {q:"What is guacamole mainly made from?",a:["Avocado","Peas","Cucumber"],c:0}
+];
+let foodState={index:0,done:false};
+function nextFood() {
+  foodState.index=(foodState.index+1)%foods.length;
+  setupQuiz(foods,foodState,"foodQuestion","foodButtons","foodResult","nextFood","answerFood");
+}
+function answerFood(n) { answerQuiz(foods,foodState,"foodResult",n); }
+
+// 15. Lucky Number
+const luckyNumber=rand(1,10);
+function checkLucky() {
+  if(Number(document.getElementById("luckyInput").value)===luckyNumber) {
+    document.getElementById("luckyResult").textContent="You found it! +10 points!";
+    award(10);
+  } else {
+    document.getElementById("luckyResult").textContent="Not that one! The lucky number is "+luckyNumber+".";
+  }
+}
+
+// 16. True or False
+const facts=[
+ {q:"An octopus has three hearts.",c:true},
+ {q:"Venus is the closest planet to the Sun.",c:false},
+ {q:"A group of flamingos is called a flamboyance.",c:true},
+ {q:"The human body has four lungs.",c:false},
+ {q:"Sound travels faster through water than through air.",c:true},
+ {q:"A day on Venus is longer than its year.",c:true}
+];
+let factState={index:0,done:false};
+function nextFact() {
+  factState.index=(factState.index+1)%facts.length;
+  factState.done=false;
+  document.getElementById("factQuestion").textContent=facts[factState.index].q;
+  document.getElementById("factResult").textContent="";
+}
+function answerFact(answer) {
+  if(factState.done)return;
+  factState.done=true;
+  if(answer===facts[factState.index].c) {
+    document.getElementById("factResult").textContent="Correct! +10 points!";
+    award(10);
+  } else {
+    document.getElementById("factResult").textContent="Incorrect! Try the next one.";
+  }
+}
+
+// 17. Guess the Sound
+const sounds=[
+ {q:"I buzz near your ear and can leave an itchy bite. What am I?",a:["Mosquito","Cat","Frog"],c:0},
+ {q:"I rumble during a storm. What am I?",a:["Thunder","Wind","Rain"],c:0},
+ {q:"I click and clack when you type on a computer. What am I?",a:["Keyboard","Speaker","Printer"],c:0},
+ {q:"I chug along railway tracks. What am I?",a:["Train","Plane","Boat"],c:0}
+];
+let soundState={index:0,done:false};
+function nextSound() {
+  soundState.index=(soundState.index+1)%sounds.length;
+  setupQuiz(sounds,soundState,"soundQuestion","soundButtons","soundResult","nextSound","answerSound");
+}
+function answerSound(n) { answerQuiz(sounds,soundState,"soundResult",n); }
+
+// 18. Hard Brain Buster
+const brains=[
+ {q:"I have cities but no houses, forests but no trees. What am I?",a:["A map","A painting","A book"],c:0},
+ {q:"The more you take, the more you leave behind. What are they?",a:["Coins","Footsteps","Photos"],c:1},
+ {q:"I travel around the world while staying in one corner. What am I?",a:["A stamp","A suitcase","A compass"],c:0},
+ {q:"What has keys but no locks, and space but no room?",a:["A keyboard","A door","A treasure chest"],c:0},
+ {q:"What gets wetter the more it dries?",a:["A towel","A cloud","A flame"],c:0}
+];
+let brainState={index:0,done:false};
+function nextBrain() {
+  brainState.index=(brainState.index+1)%brains.length;
+  setupQuiz(brains,brainState,"brainQuestion","brainButtons","brainResult","nextBrain","answerBrain");
+}
+function answerBrain(n) { answerQuiz(brains,brainState,"brainResult",n); }
+
+// 19. Hard Math Master
+let mathAnswer=0;
+let mathDone=false;
+function newMath() {
+  const a=rand(6,15), b=rand(6,15);
+  mathAnswer=a*b;
+  mathDone=false;
+  document.getElementById("mathQuestion").textContent="HARD MODE 🔥 What is "+a+" × "+b+"?";
+  document.getElementById("mathInput").value="";
+  document.getElementById("mathResult").textContent="";
+}
+function checkMath() {
+  if(mathDone)return;
+  const input=document.getElementById("mathInput").value;
+  if(input==="") {
+    document.getElementById("mathResult").textContent="Enter an answer first!";
+  } else if(Number(input)===mathAnswer) {
+    mathDone=true;
+    document.getElementById("mathResult").textContent="Math genius! +10 points!";
+    award(10);
+  } else {
+    document.getElementById("mathResult").textContent="Try again!";
+  }
+}
+
+// 20. Mystery Detective
+const mysteries=[
+ {q:"A man says: 'I have no brothers or sisters, but this person's father is my father's son.' Who is in the photo?",a:["His father","His son","His cousin"],c:1},
+ {q:"Two fathers and two sons catch three fish. Each gets one fish. How?",a:["There are three people","One fish was shared","Someone gets no fish"],c:0},
+ {q:"You have one match in a dark room with a candle and a lamp. What do you light first?",a:["The candle","The lamp","The match"],c:2},
+ {q:"A farmer has 17 sheep. All but 9 run away. How many are left?",a:["8","9","17"],c:1},
+ {q:"A plane crashes on a border. Where do they bury the survivors?",a:["In one country","In the other country","They don't bury survivors"],c:2}
+];
+let mysteryState={index:0,done:false};
+function nextMystery() {
+  mysteryState.index=(mysteryState.index+1)%mysteries.length;
+  setupQuiz(mysteries,mysteryState,"mysteryQuestion","mysteryButtons","mysteryResult","nextMystery","answerMystery");
+}
+function answerMystery(n) { answerQuiz(mysteries,mysteryState,"mysteryResult",n); }
+
+// Set up first question in every game
+function initialiseGames() {
+  document.getElementById("riddleQuestion").textContent=riddles[0].q;
+  makeButtons("riddleButtons",riddles[0].a,"answerRiddle");
+
+  document.getElementById("triviaQuestion").textContent=trivia[0].q;
+  makeButtons("triviaButtons",trivia[0].a,"answerTrivia");
+
+  document.getElementById("emojiQuestion").textContent=emojis[0].q;
+  makeButtons("emojiButtons",emojis[0].a,"answerEmoji");
+
+  showRather();
+  newScramble();
+  newNumberChallenge();
+
+  document.getElementById("whoQuestion").textContent=whoData[0].q;
+  makeButtons("whoButtons",whoData[0].a,"answerWho");
+
+  document.getElementById("foodQuestion").textContent=foods[0].q;
+  makeButtons("foodButtons",foods[0].a,"answerFood");
+
+  document.getElementById("factQuestion").textContent=facts[0].q;
+
+  document.getElementById("soundQuestion").textContent=sounds[0].q;
+  makeButtons("soundButtons",sounds[0].a,"answerSound");
+
+  document.getElementById("brainQuestion").textContent=brains[0].q;
+  makeButtons("brainButtons",brains[0].a,"answerBrain");
+
+  newMath();
+
+  document.getElementById("mysteryQuestion").textContent=mysteries[0].q;
+  makeButtons("mysteryButtons",mysteries[0].a,"answerMystery");
+}
+
+initialiseGames();
+updateDisplay();
+</script>
+
+</body>
+</html>
+
+
+
