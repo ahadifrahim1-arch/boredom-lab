@@ -97,6 +97,7 @@ footer {
 
 <body>
 
+
 <header>
   <h1>🎮 BOREDOM LAB 2.0 🎮</h1>
   <p>The ultimate family game zone!</p>
@@ -821,6 +822,23 @@ function initialiseGames() {
 
 initialiseGames();
 updateDisplay();
+  
+function searchGames() {
+  const input = document.getElementById("gameSearch");
+  const searchText = input.value.toLowerCase().trim();
+
+  const games = document.querySelectorAll("section");
+
+  games.forEach(function(game) {
+    const title = game.querySelector("h1, h2, h3, h4");
+
+    if (!title) return;
+
+    const matches = title.textContent.toLowerCase().includes(searchText);
+    game.style.display = matches ? "" : "none";
+  });
+}
+
 </script>
 
 </body>
