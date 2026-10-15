@@ -1443,11 +1443,17 @@ function searchGames() {
 <!-- START NEON BUTTON EFFECTS -->
 <style>
 /* Neon glow for website buttons */
+```css
 body button {
-  transition: box-shadow 0.2s ease, transform 0.2s ease,
-              background-color 0.2s ease;
+  animation: neonPulse 3s ease-in-out infinite alternate;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+@keyframes neonPulse {
+  from { box-shadow: 0 0 2px #00ff99; }
+  to { box-shadow: 0 0 22px #00ff99, 0 0 40px #00ff99; }
+}
+```
 body button:hover {
   box-shadow: 0 0 8px #00ff99,
               0 0 18px #00ff99,
