@@ -886,11 +886,11 @@ function searchGames() {
     const text = game.textContent.toLowerCase();
 
     if (!title) return;
-
-    game.style.display = text.includes(searchText) ? "" : "none";
-    
+        game.style.display = text.includes(searchText) ? "" : "none";
   });
 }
+
+ 
 
 function showSettings() {
   document.getElementById("settingsPage").style.display = "block";
