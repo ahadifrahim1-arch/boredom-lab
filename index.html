@@ -1039,6 +1039,407 @@ function searchGames() {
 })();
 </script>
 <!-- END IMPOSSIBLE DODGE -->
+  
+<!-- START HARD MODE SNAKE -->
+<section id="hardSnakeGame">
+  <h2>🐍 HARD MODE SNAKE</h2>
+  <p>Eat the food. Don't hit the walls or yourself!</p>
+
+  <div class="snake-stats">
+    <span>Score: <b id="snakeScore">0</b></span>
+    <span>Best: <b id="snakeBest">0</b></span>
+  </div>
+
+  <canvas id="snakeCanvas" width="400" height="400"
+    tabindex="0" aria-label="Snake game board"></canvas>
+
+  <p id="snakeMessage">Press START to begin!</p>
+
+  <button id="snakeStart">START GAME</button>
+
+  <div class="snake-controls">
+    <button id="snakeUp" aria-label="Move up">⬆️</button>
+    <div>
+      <button id="snakeLeft" aria-label="Move left">⬅️</button>
+      <button id="snakeDown" aria-label="Move down">⬇️</button>
+      <button id="snakeRight" aria-label="Move right">➡️</button>
+    </div>
+  </div>
+
+  <p class="snake-help">
+    Computer: Arrow keys or WASD<br>
+    Mobile: Tap the direction buttons or swipe the board
+  </p>
+</section>
+
+<style>
+#hardSnakeGame {
+  max-width: 460px;
+  margin: 25px auto;
+  padding: 20px;
+  text-align: center;
+  color: white;
+  background: #111827;
+  border: 2px solid #22c55e;
+  border-radius: 18px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+#hardSnakeGame h2 {
+  color: #4ade80;
+  margin-top: 0;
+}
+
+#hardSnakeGame .snake-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  margin: 15px 0;
+  font-size: 18px;
+}
+
+#hardSnakeGame canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #07130e;
+  border: 2px solid #4ade80;
+  border-radius: 8px;
+  box-sizing: border-box;
+  touch-action: none;
+  outline-offset: 4px;
+}
+
+#hardSnakeGame button {
+  color: white;
+  background: #16a34a;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 17px;
+  margin: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#hardSnakeGame button:hover {
+  background: #15803d;
+}
+
+#hardSnakeGame button:active {
+  transform: scale(0.94);
+}
+
+#hardSnakeGame .snake-controls {
+  margin-top: 12px;
+}
+
+#hardSnakeGame .snake-controls > button {
+  min-width: 58px;
+}
+
+#hardSnakeGame .snake-controls div {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+#hardSnakeGame .snake-help {
+  font-size: 13px;
+  color: #bbf7d0;
+  line-height: 1.7;
+}
+
+#hardSnakeGame #snakeMessage {
+  min-height: 24px;
+  font-weight: bold;
+}
+</style>
+
+<script>
+(function () {
+  const root = document.getElementById("hardSnakeGame");
+  if (!root || root.dataset.ready) return;
+  root.dataset.ready = "true";
+
+  const canvas = root.querySelector("#snakeCanvas");
+  const ctx = canvas.getContext("2d");
+  const scoreText = root.querySelector("#snakeScore");
+  const bestText = root.querySelector("#snakeBest");
+  const message = root.querySelector("#snakeMessage");
+  const startButton = root.querySelector("#snakeStart");
+
+  const cells = 20;
+  const tile = canvas.width / cells;
+
+  let snake, food, direction, nextDirection;
+  let score = 0;
+  let best = 0;
+  let running = false;
+  let ended = false;
+  let timer = null;
+  let lastSwipe = null;
+
+  try {
+    best = Number(localStorage.getItem("hardSnakeBest")) || 0;
+  } catch (e) {}
+
+  bestText.textContent = best;
+
+  function randomFood() {
+    let position;
+
+    do {
+      position = {
+        x: Math.floor(Math.random() * cells),
+        y: Math.floor(Math.random() * cells)
+      };
+    } while (snake.some(part =>
+      part.x === position.x && part.y === position.y
+    ));
+
+    return position;
+  }
+
+  function drawScene() {
+    ctx.fillStyle = "#07130e";
+    ctx.fillRect(0, 0, 400, 400);
+
+    ctx.strokeStyle = "#14291e";
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= cells; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * tile, 0);
+      ctx.lineTo(i * tile, 400);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, i * tile);
+      ctx.lineTo(400, i * tile);
+      ctx.stroke();
+    }
+
+    if (food) {
+      ctx.fillStyle = "#ef4444";
+      ctx.beginPath();
+      ctx.arc(
+        food.x * tile + tile / 2,
+        food.y * tile + tile / 2,
+        tile * 0.36,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
+
+    if (snake) {
+      snake.forEach((part, index) => {
+        ctx.fillStyle = index === 0 ? "#86efac" : "#22c55e";
+        ctx.fillRect(
+          part.x * tile + 1,
+          part.y * tile + 1,
+          tile - 2,
+          tile - 2
+        );
+      });
+
+      const head = snake[0];
+      ctx.fillStyle = "#052e16";
+      ctx.fillRect(head.x * tile + 5, head.y * tile + 5, 3, 3);
+      ctx.fillRect(head.x * tile + 12, head.y * tile + 5, 3, 3);
+    }
+  }
+
+  function setDirection(dx, dy) {
+    if (!running) return;
+
+    if (dx === -direction.x && dy === -direction.y) return;
+
+    nextDirection = { x: dx, y: dy };
+  }
+
+  function stopGame() {
+    running = false;
+    ended = true;
+    clearTimeout(timer);
+    timer = null;
+    message.textContent = "💀 GAME OVER! Score: " + score;
+    startButton.textContent = "PLAY AGAIN";
+    drawScene();
+  }
+
+  function tick() {
+    if (!running) return;
+
+    direction = nextDirection;
+
+    const head = {
+      x: snake[0].x + direction.x,
+      y: snake[0].y + direction.y
+    };
+
+    const eating = head.x === food.x && head.y === food.y;
+
+    if (
+      head.x < 0 || head.x >= cells ||
+      head.y < 0 || head.y >= cells
+    ) {
+      stopGame();
+      return;
+    }
+
+    const body = eating ? snake : snake.slice(0, -1);
+
+    if (body.some(part =>
+      part.x === head.x && part.y === head.y
+    )) {
+      stopGame();
+      return;
+    }
+
+    snake.unshift(head);
+
+    if (eating) {
+      score += 10;
+      scoreText.textContent = score;
+
+      if (score > best) {
+        best = score;
+        bestText.textContent = best;
+
+        try {
+          localStorage.setItem("hardSnakeBest", best);
+        } catch (e) {}
+      }
+
+      if (snake.length === cells * cells) {
+        running = false;
+        ended = true;
+        message.textContent = "🏆 YOU FILLED THE BOARD! LEGEND!";
+        startButton.textContent = "PLAY AGAIN";
+        drawScene();
+        return;
+      }
+
+      food = randomFood();
+    } else {
+      snake.pop();
+    }
+
+    drawScene();
+
+    message.textContent = "Keep going! Speed: " +
+      Math.min(10, 1 + Math.floor(score / 50)) + "/10";
+
+    // Gets faster every 50 points. Hard mode!
+    const delay = Math.max(55, 115 - Math.floor(score / 50) * 6);
+    timer = setTimeout(tick, delay);
+  }
+
+  function resetGame() {
+    clearTimeout(timer);
+    timer = null;
+
+    snake = [
+      { x: 10, y: 10 },
+      { x: 9, y: 10 },
+      { x: 8, y: 10 }
+    ];
+
+    direction = { x: 1, y: 0 };
+    nextDirection = { x: 1, y: 0 };
+    score = 0;
+    running = true;
+    ended = false;
+
+    scoreText.textContent = "0";
+    message.textContent = "GO GO GO!";
+    startButton.textContent = "RESTART";
+    food = randomFood();
+
+    drawScene();
+    canvas.focus({ preventScroll: true });
+    timer = setTimeout(tick, 115);
+  }
+
+  canvas.addEventListener("keydown", function (event) {
+    const keys = {
+      ArrowUp: [0, -1],
+      w: [0, -1],
+      ArrowDown: [0, 1],
+      s: [0, 1],
+      ArrowLeft: [-1, 0],
+      a: [-1, 0],
+      ArrowRight: [1, 0],
+      d: [1, 0]
+    };
+
+    const key = event.key.length === 1
+      ? event.key.toLowerCase()
+      : event.key;
+
+    if (keys[key]) {
+      event.preventDefault();
+      setDirection(keys[key][0], keys[key][1]);
+    }
+  });
+
+  root.querySelector("#snakeUp").addEventListener("click",
+    () => setDirection(0, -1));
+  root.querySelector("#snakeDown").addEventListener("click",
+    () => setDirection(0, 1));
+  root.querySelector("#snakeLeft").addEventListener("click",
+    () => setDirection(-1, 0));
+  root.querySelector("#snakeRight").addEventListener("click",
+    () => setDirection(1, 0));
+
+  canvas.addEventListener("pointerdown", function (event) {
+    lastSwipe = { x: event.clientX, y: event.clientY };
+    event.preventDefault();
+  });
+
+  canvas.addEventListener("pointerup", function (event) {
+    if (!lastSwipe) return;
+
+    const dx = event.clientX - lastSwipe.x;
+    const dy = event.clientY - lastSwipe.y;
+    lastSwipe = null;
+
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setDirection(dx > 0 ? 1 : -1, 0);
+    } else {
+      setDirection(0, dy > 0 ? 1 : -1);
+    }
+  });
+
+  canvas.addEventListener("pointercancel", function () {
+    lastSwipe = null;
+  });
+
+  startButton.addEventListener("click", resetGame);
+
+  snake = [
+    { x: 10, y: 10 },
+    { x: 9, y: 10 },
+    { x: 8, y: 10 }
+  ];
+
+  food = { x: 15, y: 10 };
+  direction = { x: 1, y: 0 };
+  nextDirection = { x: 1, y: 0 };
+
+  drawScene();
+})();
+</script>
+<!-- END HARD MODE SNAKE -->
+
  
 </body>
 </html>
