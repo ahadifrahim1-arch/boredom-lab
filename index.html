@@ -1439,6 +1439,83 @@ function searchGames() {
 })();
 </script>
 <!-- END HARD MODE SNAKE -->
+  
+<!-- START NEON BUTTON EFFECTS -->
+<style>
+/* Neon glow for website buttons */
+body button {
+  transition: box-shadow 0.2s ease, transform 0.2s ease,
+              background-color 0.2s ease;
+}
+
+body button:hover {
+  box-shadow: 0 0 8px #00ff99,
+              0 0 18px #00ff99,
+              0 0 30px #00ff99;
+  transform: translateY(-2px);
+}
+
+body button:active {
+  box-shadow: 0 0 12px #00ffff,
+              0 0 24px #00ffff;
+  transform: scale(0.96);
+}
+</style>
+
+<script>
+(function () {
+  let audioContext;
+
+  function buzz() {
+    try {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) return;
+
+      if (!audioContext) {
+        audioContext = new AudioContextClass();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = "sawtooth";
+      oscillator.frequency.setValueAtTime(
+        130, audioContext.currentTime
+      );
+      oscillator.frequency.exponentialRampToValueAtTime(
+        65, audioContext.currentTime + 0.09
+      );
+
+      gain.gain.setValueAtTime(0.06, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001, audioContext.currentTime + 0.1
+      );
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (error) {
+      // Keep the website working if audio is unavailable.
+    }
+  }
+
+  document.addEventListener("click", function (event) {
+    if (event.target.closest("button")) {
+      buzz();
+    }
+  });
+})();
+</script>
+<!-- END NEON BUTTON EFFECTS -->
+
 
  
 </body>
