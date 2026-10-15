@@ -827,15 +827,19 @@ function searchGames() {
   const input = document.getElementById("gameSearch");
   const searchText = input.value.toLowerCase().trim();
 
-  const games = document.querySelectorAll("section");
+  const games = document.querySelectorAll(".game");
 
   games.forEach(function(game) {
-    const title = game.querySelector("h1, h2, h3, h4");
+    const title = game.querySelector("h2, h3, h4");
+    const text = game.textContent.toLowerCase();
 
     if (!title) return;
 
-    const matches = title.textContent.toLowerCase().includes(searchText);
-    game.style.display = matches ? "" : "none";
+    game.style.display = text.includes(searchText) ? "" : "none";
+  });
+}
+
+
   });
 }
 
