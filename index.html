@@ -850,6 +850,196 @@ function searchGames() {
 </script>
 
 </body>
+  
+<!-- IMPOSSIBLE DODGE GAME -->
+<div id="impossible-dodge" style="max-width:600px;margin:30px auto;padding:20px;background:#15152b;color:white;border-radius:18px;text-align:center;font-family:Arial,sans-serif;box-sizing:border-box;">
+  <h2 style="color:#8b7bff;font-size:28px;margin:5px 0;">🧱 IMPOSSIBLE DODGE</h2>
+  <p>Dodge the falling blocks. How long can you survive?</p>
+  <p>Score: <strong id="id-score">0</strong> | Best: <strong id="id-best">0</strong></p>
+
+  <canvas id="id-board" width="360" height="420" style="width:100%;max-width:360px;background:#090919;border:2px solid #6555ff;border-radius:10px;display:block;margin:15px auto;touch-action:none;"></canvas>
+
+  <button id="id-start" style="background:#7865ff;color:white;border:0;border-radius:10px;padding:12px 24px;font-size:17px;font-weight:bold;cursor:pointer;">▶ Start Game</button>
+
+  <div style="margin-top:14px;">
+    <button id="id-left" style="background:#29294b;color:white;border:0;border-radius:10px;padding:12px 25px;font-size:22px;cursor:pointer;">⬅️</button>
+    <button id="id-right" style="background:#29294b;color:white;border:0;border-radius:10px;padding:12px 25px;font-size:22px;cursor:pointer;">➡️</button>
+  </div>
+  <p style="font-size:13px;color:#bdbddd;">Use ← → or A / D on your keyboard, or tap the arrows.</p>
+  <p id="id-message" style="color:#b8aaff;font-weight:bold;">Press Start Game to play!</p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById("id-board");
+  const ctx = canvas.getContext("2d");
+  const scoreText = document.getElementById("id-score");
+  const bestText = document.getElementById("id-best");
+  const startButton = document.getElementById("id-start");
+  const message = document.getElementById("id-message");
+
+  let player, blocks, score, running, gameOver, lastTime;
+  let keys = {};
+  let spawnTimer = 0;
+  let best = 0;
+
+  try {
+    best = Number(localStorage.getItem("impossibleDodgeBest")) || 0;
+  } catch (e) {}
+  bestText.textContent = best;
+
+  function drawScene() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#202044";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < 360; x += 30) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 420);
+      ctx.stroke();
+    }
+    for (let y = 0; y < 420; y += 30) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(360, y);
+      ctx.stroke();
+    }
+
+    blocks.forEach(function (b) {
+      ctx.fillStyle = "#ff456b";
+      ctx.shadowColor = "#ff1744";
+      ctx.shadowBlur = 10;
+      ctx.fillRect(b.x, b.y, b.size, b.size);
+      ctx.shadowBlur = 0;
+    });
+
+    if (player) {
+      ctx.fillStyle = "#55eaff";
+      ctx.shadowColor = "#00d9ff";
+      ctx.shadowBlur = 15;
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function resetGame() {
+    player = { x: 165, y: 370, size: 30, speed: 250 };
+    blocks = [];
+    score = 0;
+    spawnTimer = 0;
+    lastTime = 0;
+    running = true;
+    gameOver = false;
+    keys = {};
+    scoreText.textContent = "0";
+    message.textContent = "DODGE EVERYTHING!";
+    startButton.textContent = "↻ Restart";
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    running = false;
+    gameOver = true;
+    best = Math.max(best, score);
+    bestText.textContent = best;
+    try {
+      localStorage.setItem("impossibleDodgeBest", best);
+    } catch (e) {}
+    message.textContent = "💥 GAME OVER! Score: " + score;
+    startButton.textContent = "↻ Play Again";
+    drawScene();
+  }
+
+  function loop(time) {
+    if (!running) return;
+
+    if (!lastTime) lastTime = time;
+    const dt = Math.min((time - lastTime) / 1000, 0.04);
+    lastTime = time;
+
+    if (keys.ArrowLeft || keys.a || keys.A) player.x -= player.speed * dt;
+    if (keys.ArrowRight || keys.d || keys.D) player.x += player.speed * dt;
+    player.x = Math.max(0, Math.min(330, player.x));
+
+    spawnTimer += dt;
+    const interval = Math.max(0.28, 0.8 - score * 0.008);
+
+    if (spawnTimer >= interval) {
+      spawnTimer = 0;
+      const size = 22 + Math.random() * 24;
+      blocks.push({
+        x: Math.random() * (360 - size),
+        y: -size,
+        size: size,
+        speed: 150 + Math.random() * 70 + score * 2
+      });
+    }
+
+    blocks.forEach(function (b) {
+      b.y += b.speed * dt;
+    });
+
+    blocks = blocks.filter(function (b) {
+      return b.y < 430;
+    });
+
+    for (const b of blocks) {
+      if (
+        player.x < b.x + b.size &&
+        player.x + player.size > b.x &&
+        player.y < b.y + b.size &&
+        player.y + player.size > b.y
+      ) {
+        endGame();
+        return;
+      }
+    }
+
+    score += dt * 10;
+    scoreText.textContent = Math.floor(score);
+    drawScene();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+      if (e.target === document.body) e.preventDefault();
+    }
+    keys[e.key] = true;
+  });
+
+  document.addEventListener("keyup", function (e) {
+    keys[e.key] = false;
+  });
+
+  function holdButton(id, key) {
+    const button = document.getElementById(id);
+    button.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      keys[key] = true;
+    });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(function (event) {
+      button.addEventListener(event, function () {
+        keys[key] = false;
+      });
+    });
+  }
+
+  holdButton("id-left", "ArrowLeft");
+  holdButton("id-right", "ArrowRight");
+  startButton.addEventListener("click", resetGame);
+
+  player = { x: 165, y: 370, size: 30, speed: 250 };
+  blocks = [];
+  score = 0;
+  running = false;
+  gameOver = false;
+  drawScene();
+})();
+</script>
+<!-- END IMPOSSIBLE DODGE -->
+
 </html>
 
 
