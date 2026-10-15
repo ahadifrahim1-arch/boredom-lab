@@ -371,31 +371,6 @@ footer {
   <button onclick="showHome()">🏠 Back Home</button>
 </div>
   
-function showSettings() {
-  document.getElementById("settingsPage").style.display = "block";
-  document.querySelector("header").style.display = "none";
-  document.querySelectorAll("body > section, body > .game, body > footer").forEach(el => el.style.display = "none");
-}
-
-function showHome() {
-  document.getElementById("settingsPage").style.display = "none";
-  document.querySelector("header").style.display = "block";
-  document.querySelectorAll("body > section, body > .game, body > footer").forEach(el => el.style.display = "");
-}
-
-let soundOn = true;
-
-function toggleSound() {
-  soundOn = !soundOn;
-  document.getElementById("soundButton").textContent =
-    soundOn ? "Sound: ON" : "Sound: OFF";
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("light-theme");
-}
-
-  
 
 
 <script>
@@ -916,6 +891,44 @@ function searchGames() {
     
   });
 }
+
+function showSettings() {
+  document.getElementById("settingsPage").style.display = "block";
+  document.querySelector("header").style.display = "none";
+
+  document.querySelectorAll(".game, section, footer").forEach(el => {
+    el.style.display = "none";
+  });
+
+  const search = document.getElementById("gameSearch");
+  if (search) search.closest("div").style.display = "none";
+}
+
+function showHome() {
+  document.getElementById("settingsPage").style.display = "none";
+  document.querySelector("header").style.display = "block";
+
+  document.querySelectorAll(".game, section, footer").forEach(el => {
+    el.style.display = "";
+  });
+
+  const search = document.getElementById("gameSearch");
+  if (search) search.closest("div").style.display = "";
+}
+
+let soundOn = true;
+
+function toggleSound() {
+  soundOn = !soundOn;
+
+  document.getElementById("soundButton").textContent =
+    soundOn ? "Sound: ON" : "Sound: OFF";
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+}
+
 
 
 
