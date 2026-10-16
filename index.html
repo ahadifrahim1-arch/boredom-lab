@@ -165,6 +165,26 @@ footer {
 </head>
 
 <body>
+  <!-- BOREDOM LAB HOMEPAGE -->
+<div id="homePage" style="display:none; text-align:center; padding:50px 20px;">
+
+  <h1 style="font-size:clamp(30px, 6vw, 52px); color:#c084fc; text-shadow:0 0 15px #a855f7, 0 0 30px #8b5cf6;">
+    🎮 BOREDOM LAB 2.0 🎮
+  </h1>
+
+  <p style="font-size:20px;">The ultimate family game zone!</p>
+  <p>Play, laugh and collect points together 🏆</p>
+
+  <button onclick="showGames()" style="display:block; margin:30px auto 18px; width:min(320px, 90%); padding:22px; font-size:28px; font-weight:bold; color:white; background:linear-gradient(90deg,#8b5cf6,#06b6d4); border:0; border-radius:16px; cursor:pointer; box-shadow:0 0 20px #8b5cf6;">
+    ▶ PLAY
+  </button>
+
+  <button onclick="showSettings()" style="display:block; margin:auto; width:min(320px,90%); padding:15px; font-size:19px; font-weight:bold; color:white; background:#25113d; border:2px solid #a855f7; border-radius:12px; cursor:pointer; box-shadow:0 0 12px #8b5cf6;">
+    ⚙️ SETTINGS
+  </button>
+
+</div>
+<!-- END BOREDOM LAB HOMEPAGE -->
 
 
 
@@ -374,7 +394,9 @@ footer {
   <button onclick="nextBrain()">Next Riddle</button>
 </div>
 
-<!-- HARD GAME 19 -->
+
+<footer>💜 BOREDOM LAB 2.0 — Family Fun Starts Here! 💜</footer>
+  <!-- HARD GAME 19 -->
 <div class="game">
   <h2>✖️ 19. Math Master</h2>
   <p id="mathQuestion"></p>
@@ -393,8 +415,6 @@ footer {
   <button onclick="nextMystery()">Next Mystery</button>
 </div>
 
-<footer>💜 BOREDOM LAB 2.0 — Family Fun Starts Here! 💜</footer>
-  
 <div id="settingsPage" style="display:none; text-align:center; padding:30px;">
   <h1>⚙️ Settings</h1>
 
@@ -944,7 +964,47 @@ function showSettings() {
   if (search) search.closest("div").style.display = "none";
 }
 
+function 
 function showHome() {
+  document.getElementById("homePage").style.display = "block";
+  document.querySelector("header").style.display = "none";
+  document.getElementById("settingsPage").style.display = "none";
+
+  document.querySelectorAll(".game, section, footer").forEach(el => {
+    el.style.display = "none";
+  });
+
+  const search = document.getElementById("gameSearch");
+  if (search) search.closest("div").style.display = "none";
+}
+
+function showGames() {
+  document.getElementById("homePage").style.display = "none";
+  document.getElementById("settingsPage").style.display = "none";
+  document.querySelector("header").style.display = "block";
+
+  document.querySelectorAll(".game, section, footer").forEach(el => {
+    el.style.display = "";
+  });
+
+  const search = document.getElementById("gameSearch");
+  if (search) search.closest("div").style.display = "";
+}
+
+function showSettings() {
+  document.getElementById("homePage").style.display = "none";
+  document.querySelector("header").style.display = "none";
+
+  document.querySelectorAll(".game, section, footer").forEach(el => {
+    el.style.display = "none";
+  });
+
+  const search = document.getElementById("gameSearch");
+  if (search) search.closest("div").style.display = "none";
+
+  document.getElementById("settingsPage").style.display = "block";
+}
+ {
   document.getElementById("settingsPage").style.display = "none";
   document.querySelector("header").style.display = "block";
 
@@ -968,6 +1028,7 @@ function toggleSound() {
 function toggleTheme() {
   document.body.classList.toggle("light-theme");
 }
+  showHome();
 
 
 
