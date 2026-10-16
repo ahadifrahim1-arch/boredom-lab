@@ -964,20 +964,21 @@ function showSettings() {
   if (search) search.closest("div").style.display = "none";
 }
 
- 
 function showHome() {
   document.getElementById("homePage").style.display = "block";
-  document.querySelector("header").style.display = "none";
   document.getElementById("settingsPage").style.display = "none";
 
-  document.querySelectorAll(".game, section, footer").forEach(el => {
+  document.querySelector("header").style.display = "none";
+
+  document.querySelectorAll(
+    ".game, section, footer"
+  ).forEach(el => {
     el.style.display = "none";
   });
 
   const search = document.getElementById("gameSearch");
   if (search) search.closest("div").style.display = "none";
 }
-
 function showGames() {
   document.getElementById("homePage").style.display = "none";
   document.getElementById("settingsPage").style.display = "none";
